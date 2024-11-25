@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduLink - Forum Diskusi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <h1>EduLink</h1>
+        <nav>
+            <a href="#" onclick="showHome()">Home</a>
+            <a href="#about">Tentang</a>
+            <a href="#contact">Kontak</a>
+        </nav>
+    </header>
+
+    <main id="main-content"></main>
+
+    <footer>
+        
+    </footer>
+
+    <script>
+        const subjects = [
+            { name: 'Matematika', image: 'assets/1.jpg' },
+            { name: 'Bahasa Indonesia', image: 'assets/2.jpg' },
+            { name: 'IPA', image: 'assets/3.jpg' },
+            { name: 'IPS', image: 'assets/4.jpg' },
+            { name: 'Bahasa Inggris', image: 'assets/5.jpg' },
+        ];
+
+        let currentLesson = '';
+        let questions = [];
+
+        function showHome() {
+            const mainContent = document.getElementById('main-content');
+            mainContent.innerHTML = `
+                <div class="home">
+                    <h2>Selamat Datang di EduLink</h2>
+                    <p>Pilih pelajaran yang ingin dipelajari:</p>
+                    <div class="lesson-list">
+                        ${subjects.map(subject => `
+                            <div class="lesson" onclick="showLesson('${subject.name}')">
+                                <img src="${subject.image}" alt="${subject.name}">
+                                <h3>${subject.name}</h3>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function showLesson(lessonName) {
+            currentLesson = lessonName;
+            const mainContent = document.getElementById('main-content');
+            mainContent.innerHTML = `
+                <div class="question-page">
+                    <a href="#" onclick="showHome()" class="back-button">Kembali</a>
+                    <h2>${lessonName}</h2>
+                    <div class="question-form">
+                        <input type="text" id="questionInput" placeholder="Tulis pertanyaan Anda...">
+                        <button onclick="addQuestion()">Tanya</button>
+                    </div>
+                    <div id="questionList"></div>
+                </div>
+            `;
+            updateQuestionList();
+        }
+
+        function addQuestion() {
+            const questionInput = document.getElementById('questionInput');
+            const questionText = questionInput.value.trim();
+            if (questionText) {
+                questions.push({ text: questionText, answers: [] });
+                questionInput.value = '';
+                updateQuestionList();
+            } else {
+                alert('Silakan masukkan pertanyaan.');
+            }
+        }
+
+        function addAnswer(questionIndex) {
+            const answerText = document.getElementById(`answerInput${questionIndex}`).value.trim();
+            const answerImage = document.getElementById(`answerImage${questionIndex}`).files[0];
+            
+            if (answerText || answerImage) {
+                const answer = { text: answerText };
+                if (answerImage) {
+                    answer.image = URL.createObjectURL(answerImage);
+                }
+                questions[questionIndex].answers.push(answer);
+                updateQuestionList();
+            } else {
+                alert('Silakan masukkan jawaban berupa teks atau unggah gambar.');
+            }
+        }
+
+        function updateQuestionList() {
+            const questionList = document.getElementById('questionList');
+            questionList.innerHTML = questions.length === 0 ? '<p>Belum ada pertanyaan diajukan.</p>' : 
+                questions.map((question, index) => `
+                    <div class="question">
+                        <strong>Pertanyaan:</strong> ${question.text}
+                        <div class="answer-form">
+                            <input type="text" id="answerInput${index}" placeholder="Tulis jawaban Anda...">
+                            <input type="file" id="answerImage${index}" accept="image/*">
+                            <button onclick="addAnswer(${index})">Jawab</button>
+                        </div>
+                        <div class="answers">
+                            ${question.answers.map(answer => `
+                                <div class="answer">
+                                    ${answer.text ? `<strong>Jawaban:</strong> ${answer.text}` : ''}
+                                    ${answer.image ? `<img src="${answer.image}" alt="Jawaban Gambar" style="max-width: 100%; margin-top: 0.5rem;">` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `).join('');
+        }
+
+        showHome();
+    </script>
+</body>
+</html>
